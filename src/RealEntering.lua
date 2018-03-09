@@ -36,6 +36,23 @@ function RealEntering:load(savegame)
 	self.LRE.player.leftArm = Utils.indexToObject(self.components, "0>21|4");
 	
 	
+	self.LRE.player.enterAnimaton = getXMLString(self.xmlFile, "vehicle.realEntering#animation");
+	
+	--[[
+	Example xml:
+	<realEntering animation="" doorAnimation="" middleTime="" >
+		<animationCharacterNodes index="0>21|0">
+			<rightFoot targetNode="0>21|1"/>
+			<leftFoot targetNode="0>21|2"/>
+			<rightArm targetNode="0>21|3"/>
+			<leftArm targetNode="0>21|4"/>
+		</animationCharacterNodes>
+		<spineKeyframes>
+			<keyframe startTime="" endTime="" startRot="" endRot="" />
+		</spineKeyframes>
+	</realEntering>
+	]]--
+	
 	--[[
 		Rotations:
 			180 0 95
@@ -115,11 +132,27 @@ function RealEntering:load(savegame)
 				R: -73.906 -17.59 151.02
 	]]--
 	
+	--[[
+		ik chains targets:
+		
+		self.vehicleCharacter.ikChainTargets.leftFoot.targetNode / setDirty
+		
+		self.vehicleCharacter.characterDistanceRefNode == self.LRE.player.bodyIndex;
+		self.vehicleCharacter.characterNode            == self.LRE.player.bodyIndex;
+		
+		self.vehicleCharacter.characterSpineRotation[1] = math.pi/2;
+		setRotation(self.vehicleCharacter.spineNode, unpack(self.vehicleCharacter.characterSpineRotation));
+	]]--
+	
 end;
 function RealEntering:postLoad(savegame) end;
 
 function RealEntering:delete() end;
-function RealEntering:update(dt) end;
+
+function RealEntering:update(dt)
+	self.vehicleCharacter:setDirty();
+end;
+
 function RealEntering:updateTick(dt) end;
 function RealEntering:draw() end;
 function RealEntering:readStream(streamId, connection) end;
@@ -129,6 +162,31 @@ function RealEntering:keyEvent(unicode, sym, modifier, isDown) end;
 
 function RealEntering:onEnter()
 	print("Entered vehicle!");
+	DebugUtil.printTableRecursively(self.vehicleCharacter.ikChainTargets, "--", 0, 3);
+	print("My nodes:");
+	print(tostring(self.LRE.player.bodyIndex));
+	print(tostring(self.LRE.player.rightFoot));
+	print(tostring(self.LRE.player.leftFoot));
+	print(tostring(self.LRE.player.rightArm));
+	print(tostring(self.LRE.player.leftArm));
+	print("Spine find: ");
+	DebugUtil.printTableRecursively(self.vehicleCharacter, "--", 0, 0);
+	print("Rotation node: ");
+	DebugUtil.printTableRecursively(self.vehicleCharacter.characterSpineRotation, "--", 0, 1);
+	local x,y,z = getRotation(self.vehicleCharacter.spineNode);
+	print("Real spine rotation:");
+	print(tostring(x));
+	print(tostring(y));
+	print(tostring(z));
+	-- self.vehicleCharacter.characterSpineRotation[1] = math.pi/2;
+	-- setRotation(self.vehicleCharacter.spineNode, unpack(self.vehicleCharacter.characterSpineRotation));
+	if self.LRE.player.enterAnimaton ~= nil then
+		print("Play animation name");
+		self:setAnimationTime(self.LRE.player.enterAnimaton, 0, true);
+		self:playAnimation(self.LRE.player.enterAnimaton, 1, 0);
+	else
+		print("Animation is not set!");
+	end;
 end;
 
 function RealEntering:onLeave()

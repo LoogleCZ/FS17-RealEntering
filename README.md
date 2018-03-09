@@ -1,4 +1,4 @@
-# Fillable configuration for FS17
+# Real entering for FS17
 
 This specialization should allow modder to define entering animation for camera and player character so then can be created like-real animation of entering vehicles. 
 
